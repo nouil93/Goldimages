@@ -1,0 +1,71 @@
+{
+  "builders": [{
+    "type": "qemu",
+    "iso_checksum": "{{ user `iso_checksum_type` }}:{{ user `iso_checksum` }}",
+    "iso_url": "{{ user `iso_url` }}",
+    "output_directory": "{{ user `output_directory` }}",
+    "vm_name": "{{ user `vm_name` }}",
+    "disk_size": "{{user `disk_size`}}",
+    "headless": "{{user `headless`}}",
+    "http_directory": "http",
+    "accelerator": "kvm",
+    "boot_wait": "3s",
+    "boot_command": [
+      "<enter><wait10><wait10><wait10>",
+      "/usr/bin/curl -O http://{{ .HTTPIP }}:{{ .HTTPPort }}/archlinux/bootstrap.sh<enter><wait5>",
+      "/usr/bin/bash ./bootstrap.sh<enter>"
+    ],
+    "format": "qcow2",
+    "display": "sdl",
+    "ssh_password": "{{ user `ssh_password` }}",
+    "ssh_username": "{{ user `ssh_username` }}",
+    "ssh_timeout": "{{user `ssh_timeout`}}",
+    "shutdown_command": "sudo systemctl isolate poweroff.target",
+    "net_device": "virtio-net",
+    "disk_interface": "virtio",
+    "disk_compression": "true",
+    "disk_detect_zeroes": "on",
+    "qemuargs": [
+      ["-m", "{{user `memory`}}"],
+      ["-smp", "{{user `cpus`}}"]
+    ]
+  }],
+  "provisioners": [{
+    "type": "ansible",
+    "playbook_file": "{{user `playbook_file`}}",
+    "extra_arguments": [ "--extra-vars", "ansible_python_interpreter=/usr/bin/python3" ]
+  }],
+  "post-processors":
+  [
+    {
+      "type": "shell-local",
+      "script": "scripts/ppvagrantboxbuilder.sh",
+      "environment_vars": [
+        "vm_name={{ user `vm_name` }}",
+        "vm_type={{ user `vm_type` }}"
+      ]
+    }
+  ],
+  "variables": {
+    "cpus": "2",
+    "output_directory": "goldimage",
+    "disk_size": "20480",
+    "headless": "false",
+    "memory": "2048",
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "ssh_timeout": "60m",
+    "boot_command_prefix": "",
+    "iso_checksum": "",
+    "iso_checksum_type": "",
+    "iso_url": "",
+    "vm_name": "",
+    "auto_build": "True",
+    "box_name": "",
+    "box_tag": "",
+    "description": "",
+    "private": "False",
+    "short_description": "",
+    "playbook_file": "provisioners/ansible/vagrant.yml"
+  }
+}

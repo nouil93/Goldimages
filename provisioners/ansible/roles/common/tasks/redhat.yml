@@ -1,0 +1,5 @@
+---
+- name: colorisation du ps1
+  copy:
+    src: ps1.sh
+    dest: /etc/profile.d/

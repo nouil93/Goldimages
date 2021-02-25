@@ -1,0 +1,105 @@
+{ "description": "please read the readme/gentoo.md before running this template.",
+  "variables": {
+    "architecture": null,
+    "guest_os_type": null,
+    "iso_url": null,
+    "iso_checksum": null,
+    "iso_checksum_type": null,
+    "timezone": "UTC",
+    "sync_server": "",
+    "stage3file": null,
+    "stage3dest_path": "/tmp/stage3.tar.bz2",
+    "search_fastest_mirror": "false",
+    "http_directory": "http/gentoo",
+    "locale": "en_US.utf8",
+    "libyaml_version": "0.1.4",
+    "ruby_version": "1.9.3-p448",
+    "puppet_version": "3.2.4",
+    "chef_version": "11.6.0",
+    "ssh_username": "root",
+    "ssh_password": "vagrant",
+    "chroot": "/mnt/gentoo"
+  },
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "http/gentoo/{{user `stage3file`}}",
+      "destination": "{{user `stage3dest_path`}}"
+    },
+    {
+      "type": "file",
+      "source": "scripts/gentoo/kernel.config",
+      "destination": "/tmp/kernel.config"
+    },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "ARCHITECTURE={{user `architecture`}}",
+        "LIBYAML_VERSION={{user `libyaml_version`}}",
+        "RUBY_VERSION={{user `ruby_version`}}",
+        "PUPPET_VERSION={{user `puppet_version`}}",
+        "CHEF_VERSION={{user `chef_version`}}",
+        "TIMEZONE={{user `timezone`}}",
+        "SYNC_SERVER={{user `sync_server`}}",
+        "SEARCH_FASTEST_MIRROR={{user `search_fastest_mirror`}}",
+        "LOCALE={{user `locale`}}",
+        "CHROOT={{user `chroot`}}",
+        "PASSWORD={{user `ssh_password`}}",
+        "STAGE3DEST_PATH={{user `stage3dest_path`}}"
+      ],
+      "scripts": [
+        "scripts/gentoo/settings.sh",
+        "scripts/gentoo/base.sh",
+        "scripts/gentoo/kernel.sh",
+        "scripts/gentoo/cron.sh",
+        "scripts/gentoo/syslog.sh",
+        "scripts/gentoo/nfs.sh",
+        "scripts/gentoo/grub.sh",
+        "scripts/gentoo/reboot.sh",
+        "scripts/gentoo/virtualbox.sh",
+        "scripts/gentoo/vagrant_prepare.sh",
+        "scripts/common/vagrant.sh",
+        "scripts/common/ruby.sh",
+        "scripts/common/chef.sh",
+        "scripts/common/puppet.sh",
+        "scripts/gentoo/cleanup.sh",
+        "scripts/common/zerodisk.sh"
+      ]
+    }
+  ],
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "name": "virtualbox-gentoo",
+      "boot_command": [
+        "gentoo-nofb<enter><wait10><wait10><wait10><enter><wait10><wait10>",
+        "passwd<enter><wait>",
+        "{{user `ssh_password`}}<enter><wait>",
+        "{{user `ssh_password`}}<enter><wait>",
+        "/etc/init.d/sshd start<enter><wait>"
+      ],
+      "guest_os_type": "{{user `guest_os_type`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "virtualbox_version_file": ".vbox_version",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "1024"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "2"
+        ]
+      ]
+    }
+  ],
+  "post-processors": ["vagrant"]
+}

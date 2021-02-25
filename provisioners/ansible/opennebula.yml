@@ -1,0 +1,13 @@
+---
+  - name: Playbook to build opennebula qcow2
+    hosts: all
+    become: yes
+    gather_facts: yes
+    roles:
+      - role: common
+      - role: vmtools
+    vars:
+      common_packages:
+        - vim
+        - net-tools
+        - acpid

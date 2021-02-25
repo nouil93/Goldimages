@@ -1,0 +1,9 @@
+ansible==2.9.2
+testinfra
+yamllint
+ansible-lint
+mkdocs
+mkdocs-material
+mkdocs-bootstrap4
+paramiko
+Pygments

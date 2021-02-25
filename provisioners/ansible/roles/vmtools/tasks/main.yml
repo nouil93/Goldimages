@@ -1,0 +1,39 @@
+---
+- name: install the Opennebula context Rpm centos 6
+  yum:
+    name: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context-5.10.0-1.el6.noarch.rpm
+    state: present
+  when: ( ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "6") or
+        ( ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "6" )
+
+- name: install the Opennebula context Rpm centos 7
+  yum:
+    name: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context-5.10.0-1.el7.noarch.rpm
+    state: present
+  when: ( ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "7") or
+        ( ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "7" )
+
+- name: install the Opennebula context Rpm centos 8
+  yum:
+    name: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context-5.10.0-1.el8.noarch.rpm
+    state: present
+  when: ( ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8") or
+        ( ansible_facts['distribution'] == "Fedora" and ansible_facts['distribution_major_version'] >= "29" )
+
+- name: install the Opennebula context deb Debian Ubuntu
+  apt:
+    deb: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context_5.10.0-1.deb
+    state: present
+  when: ( ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] >= "8") or
+        ( ansible_facts['distribution'] == "Ubuntu" and ansible_facts['distribution_major_version'] >= "14.04" )
+
+- name: Download foo.conf
+  get_url:
+    url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context-5.10.0-r1.apk
+    dest: /tmp/one-context-5.10.0-r1.apk
+    mode: '0440'
+  when: ansible_facts['distribution'] == "Alpine"
+
+- name: install the Opennebula context apk Alpine
+  shell: apk add --allow-untrusted /tmp/one-context-5.10.0-r1.apk
+  when: ansible_facts['distribution'] == "Alpine"

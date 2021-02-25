@@ -1,0 +1,29 @@
+---
+# defaults file
+common_packages:
+  - cowsay
+  - vim
+  - net-tools
+
+env: undefined
+
+run_not_in_container: False
+
+motd_content: |
+  --------------------------------------------------------------------------
+                      This system is managed by Ansible
+                                                                  D\___/
+                                                                   (0_o)
+                                                                    (V)
+  --------------------------------------------------------93fd--oOo--U--oOo-
+
+  This is {{ ansible_fqdn }} running {{ ansible_distribution }} \
+      {{ ansible_distribution_version }} {{ ansible_distribution_release }}.
+  Virtual: {{ 'YES' if ansible_virtualization_role == 'guest' else 'NO' }}
+  Environment: {{ env }}
+  FQDN:   {{ ansible_fqdn }}
+  CPUs:   {{ ansible_processor_vcpus }}
+  RAM:    {{ (ansible_memtotal_mb / 1000) | round(1) }}GB
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  Last ansible run: {{ ansible_date_time.iso8601 }}

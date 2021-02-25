@@ -1,0 +1,8 @@
+{
+  "boot_command_prefix": "<esc><wait>",
+  "iso_checksum": "cb74dcb7f3816da4967c727839bdaa5efb2f912cab224279f4a31f0c9e35f79621b32afe390195d5e142d66cedc03d42f48874eba76eae23d1fac22d618cb669",
+  "iso_checksum_type": "sha512",
+  "iso_url": "http://debian.univ-lorraine.fr/debian-cd/10.6.0/amd64/iso-cd/debian-10.6.0-amd64-netinst.iso",
+  "description": "Debian Buster",
+  "short_description": "Debian Buster"
+}

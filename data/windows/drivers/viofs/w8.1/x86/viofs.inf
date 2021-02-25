@@ -1,0 +1,101 @@
+;/*++
+;
+;Copyright (c) 2019-2020 Red Hat Inc.
+;
+;
+;Module Name:
+;    viofs.inf
+;
+;Abstract:
+;
+;Installation Notes:
+;    Using Devcon: Type "devcon install viofs.inf PCI\VEN_1AF4&DEV_105A&SUBSYS_00041AF4&REV_00" to install
+;
+;--*/
+
+[Version]
+Signature       = "$WINDOWS NT$"
+Class           = System
+ClassGuid       = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider        = %VENDOR%
+CatalogFile     = viofs.cat
+PnpLockdown     = 1
+DriverVer = 08/10/2020,62.83.104.18900
+
+[DestinationDirs]
+DefaultDestDir = 12
+VirtFs_Wdf_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+viofs.sys = 1,,
+WdfCoInstaller01011.dll = 1 ; make sure the number matches with SourceDisksNames
+
+; ---------------
+; Install Section
+; ---------------
+
+[Manufacturer]
+%VENDOR% = Standard,NTx86.6.2
+
+[Standard.NTx86.6.2]
+%VirtFs.DeviceDesc% = VirtFs_Device, PCI\VEN_1AF4&DEV_105A&SUBSYS_00041AF4&REV_00, PCI\VEN_1AF4&DEV_105A
+
+[VirtFs_Device.NT]
+CopyFiles = VirtFs_CopyFiles
+
+[VirtFs_Device.NT.HW]
+AddReg = VirtFs_AddReg
+
+[VirtFs_CopyFiles]
+viofs.sys
+
+[VirtFs_AddReg]
+HKR,Interrupt Management,,0x00000010
+HKR,Interrupt Management\MessageSignaledInterruptProperties,,0x00000010
+HKR,Interrupt Management\MessageSignaledInterruptProperties,MSISupported,0x00010001,1
+HKR,Interrupt Management\MessageSignaledInterruptProperties,MessageNumberLimit,0x00010001,1
+
+; --------------------
+; Service Installation
+; --------------------
+
+[VirtFs_Device.NT.Services]
+AddService = VirtFs,0x00000002,VirtFs_Service_Install
+
+[VirtFs_Service_Install]
+DisplayName    = %VirtFs.Service%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\viofs.sys
+LoadOrderGroup = Extended Base
+
+; -------------------------------------
+; WDF & Device CoInstaller Installation
+; -------------------------------------
+
+[VirtFs_Device.NT.CoInstallers]
+AddReg=VirtFs_Wdf_CoInstaller_AddReg
+CopyFiles=VirtFs_Wdf_CoInstaller_CopyFiles
+
+[VirtFs_Wdf_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, \
+    "WdfCoInstaller01011.dll,WdfCoInstaller"
+
+[VirtFs_Wdf_CoInstaller_CopyFiles]
+WdfCoInstaller01011.dll
+
+[VirtFs_Device.NT.Wdf]
+KmdfService = VirtFs, VirtFs_wdfsect
+
+[VirtFs_wdfsect]
+KmdfLibraryVersion = 1.11
+
+[Strings]
+VENDOR              = "Red Hat, Inc."
+DiskName            = "VirtIO FS Installation Disk"
+VirtFs.DeviceDesc   = "VirtIO FS Device"
+VirtFs.Service      = "VirtIO FS Service"

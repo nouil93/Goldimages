@@ -1,0 +1,9 @@
+site_name: GoldImages Documentation
+site_author: Frederic DELACOUR
+repo_url: https://github.com/nouil93/opennebula
+theme:
+    name: material
+    highlightjs: true
+nav:
+    - Home: index.md
+    - About: about.md

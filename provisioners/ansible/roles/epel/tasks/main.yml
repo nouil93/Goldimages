@@ -1,0 +1,11 @@
+---
+- name: Install the epel-release package.
+  yum:
+    name: epel-release
+    state: present
+
+- name: Import EPEL RPM GPG key into DB.
+  rpm_key:
+    state: present
+    key: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+  when: epel_state == "present"

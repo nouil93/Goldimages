@@ -1,0 +1,6 @@
+---
+common_packages:
+    - vim
+    - net-tools
+    - cowsay
+    - bash-completion

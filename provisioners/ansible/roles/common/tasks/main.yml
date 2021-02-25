@@ -1,0 +1,26 @@
+---
+# This playbook contains common plays that will be run on all nodes.
+
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_facts['distribution']  | lower }}{{ ansible_facts['distribution_major_version'] }}.yml"
+
+- name: Install common dependencies
+  package:
+    name: "{{ common_packages }}"
+    update_cache: yes
+
+- name: Add motd
+  template:
+    src: "{{ ansible_facts['distribution'] | lower }}.j2"
+    dest: /etc/motd
+  tags: motd
+
+- name: Set up authorized keys
+  authorized_key:
+    user: vagrant
+    state: present
+    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDGnVYUNmWaN97j6pxQad3ucyEw/vit3QkPQ4GoBxWPLPxngElb6UN0WojA8+K5XHZCfuFu/DPwuriI/c0tCUmBYxy28lynW5cXIiOqQ7UOf50gB4GAy7Gx3NpTWoqMaqnmgpc66jvqYr6RgBGifT3oLqfi2d6dOsKx4vUTUnaeUxwF+Ek7kL8qY3V77PEQhDQ3TxmsGiObATiUA3u53q8m/TWYyGWMlQ/kYSeEmmKedfrUApcz11oQ2vwVoM6U1EMPjoPushTXvBJycG4Qmyv0+8RiK4a4ZlX34JlNYaX8bUMMQ/4Fy33/zvLMcYX8ED/pv5wXkfMtuMgJg0WM+ob9pYh9BFGxw7FK+vt844f+EUvc9HxNBGH54XXKabKUdUOu1JxK+SE7KNE9BA7IJiKZ7DVL+eaxcx+HcFd4GZiYMO7kDHnWO4dwu3BZ5cZdcPA+8qkMzPkTt+HvbJ52H9MYMMDkVj7CcPoKCint17/pe5ndtI/iEf6kAXLHdN1eaEA1kiKmm7vg2HMwbKSVvVGRgTPuFZHzIT61bnibpZipO4xETP8PMAd27Zo3PNjUU1KVKWpDpjZgzzM/dN0fERciad4IAVMIMuEkyXcTyqenITpnRmMKgBwFakLKhfkH2zK4jXXh1IYaacyE0rYPWmPEmIdGUv+bYcKQqwvTCqQJ0Q== fred@deneb'
+
+# configuration general pour toutes les distrib RedHat
+- include: redhat.yml
+  when: ansible_os_family == 'RedHat'

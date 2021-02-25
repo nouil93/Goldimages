@@ -1,0 +1,30 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: en
+    variant: uk
+
+  ssh:
+    install-server: true
+    allow-pw: true
+
+  identity:
+    hostname: ubuntu-server
+    password: '$1$.OT.5TVz$W9P7aO5VItlnGJUFd1WZY/'
+    username: vagrant
+
+  network:
+    network:
+      version: 2
+      ethernets:
+        ens33: {dhcp4: true, dhcp-identifier: mac}
+
+  user-data:
+    timezone: Europe/Paris
+
+  late-commands:
+    - sed -i 's/^#*\(send dhcp-client-identifier\).*$/\1 = hardware;/' /target/etc/dhcp/dhclient.conf
+    - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
+    - echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/vagrant

@@ -1,0 +1,11 @@
+---
+- name: colorisation du ps1
+  copy:
+    src: ps1.sh
+    dest: /etc/profile.d
+
+- name: Install build tools
+  yum:
+    name: "@Development tools"
+    state: present
+  become: yes

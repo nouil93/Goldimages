@@ -1,0 +1,4 @@
+---
+- name: Install Cinnamon Desktop
+  include: "{{ ansible_distribution | lower }}.yml"
+

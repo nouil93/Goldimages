@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: common
+  vars:
+    common_packages:
+      - cowsay
+      - vim
+      - net-tools
+      - acpid

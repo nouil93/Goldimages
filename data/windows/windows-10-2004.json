@@ -1,0 +1,130 @@
+{
+  "builders": [
+    {
+      "name": "windows-10-2004-amd64-libvirt",
+      "iso_checksum": "{{ user `iso_checksum_type` }}:{{ user `iso_checksum` }}",
+      "iso_url": "{{ user `iso_url` }}",
+      "output_directory": "{{ user `output_directory` }}",
+      "type": "qemu",
+      "accelerator": "kvm",
+      "cpus": 2,
+      "memory": 4096,
+      "qemuargs": [
+        ["-cpu", "host"],
+        ["-soundhw", "hda"],
+        ["-usbdevice", "tablet"],
+        ["-device", "virtio-net,netdev=user.0"],
+        ["-device", "virtio-serial-pci"],
+        ["-chardev", "socket,path=/tmp/{{.Name}}-qga.sock,server,nowait,id=qga0"],
+        ["-device", "virtserialport,chardev=qga0,name=org.qemu.guest_agent.0"],
+        ["-chardev", "spicevmc,id=spicechannel0,name=vdagent"],
+        ["-device", "virtserialport,chardev=spicechannel0,name=com.redhat.spice.0"],
+        ["-spice", "unix,addr=/tmp/{{.Name}}-spice.socket,disable-ticketing"]
+      ],
+      "headless": false,
+      "display": "sdl",
+      "format": "qcow2",
+      "disk_size": "{{user `disk_size`}}",
+      "disk_interface": "virtio",
+      "communicator": "winrm",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "4h",
+      "shutdown_command": "shutdown /s /t 0 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "http_directory": ".",
+      "floppy_files": [
+        "data/windows/10/autounattend.xml",
+        "data/windows/winrm.ps1",
+        "data/windows/drivers/vioserial/w10/amd64/*.cat",
+        "data/windows/drivers/vioserial/w10/amd64/*.inf",
+        "data/windows/drivers/vioserial/w10/amd64/*.sys",
+        "data/windows/drivers/viostor/w10/amd64/*.cat",
+        "data/windows/drivers/viostor/w10/amd64/*.inf",
+        "data/windows/drivers/viostor/w10/amd64/*.sys",
+        "data/windows/drivers/NetKVM/w10/amd64/*.cat",
+        "data/windows/drivers/NetKVM/w10/amd64/*.inf",
+        "data/windows/drivers/NetKVM/w10/amd64/*.sys",
+        "data/windows/drivers/qxldod/w10/amd64/*.cat",
+        "data/windows/drivers/qxldod/w10/amd64/*.inf",
+        "data/windows/drivers/qxldod/w10/amd64/*.sys"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "powershell",
+      "script": "scripts/disable-windows-updates.ps1"
+    },
+    {
+      "type": "powershell",
+      "inline": "<# disable Windows Defender #> Set-MpPreference -DisableRealtimeMonitoring $true; Set-ItemProperty -Path 'HKLM:/SOFTWARE/Policies/Microsoft/Windows Defender' -Name DisableAntiSpyware -Value 1"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/remove-one-drive.ps1"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/remove-apps.ps1"
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/libvirt-fix-cpu-driver.ps1"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/provision.ps1"
+    },
+    {
+      "type": "windows-update"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/enable-remote-desktop.ps1"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/provision-openssh.ps1"
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/provision-cloudbase-init.ps1"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/eject-media.ps1"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/optimize.ps1"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "build/{{.BuildName}}.box",
+      "vagrantfile_template": "data/windows/Vagrantfile.template"
+    }
+  ],
+  "variables": {
+    "output_directory": "goldimage",
+    "cpus": "2",
+    "disk_size": "61440",
+    "headless": "false",
+    "memory": "1024",
+    "ssh_timeout": "60m",
+    "ssh_password": "vagrant",
+    "ssh_username": "vagrant",
+    "iso_checksum": "",
+    "iso_checksum_type": "",
+    "iso_url": "",
+    "vm_name": "",
+    "vm_type": "vagrant"
+  }
+}

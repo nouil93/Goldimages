@@ -1,0 +1,5 @@
+---
+- name: install Cinnamon Desktop
+  dnf:
+    name: '@Cinnamon Desktop'
+    state: present

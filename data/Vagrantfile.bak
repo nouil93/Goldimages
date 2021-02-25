@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+LIBVIRTURI = "qemu:///system"
+
+Vagrant.configure("2") do |config|
+  config.ssh.forward_agent = true
+  config.ssh.insert_key = false
+  config.ssh.private_key_path = "~/.ssh/id_rsa"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.define "${hostname}" do |vmdef|
+    vmdef.vm.box = "${box}"
+    vmdef.vm.hostname = "${hostname}"
+
+    vmdef.vm.provider :libvirt do |libvirt|
+      libvirt.cpus = 2
+      libvirt.memory = 2018
+      libvirt.cpu_mode = 'host-passthrough'
+      libvirt.host = "localhost"
+      libvirt.uri = LIBVIRTURI
+      libvirt.management_network_name = "openmyweb"
+      libvirt.management_network_address = "192.168.100.0/24"
+      libvirt.driver = "kvm"
+      libvirt.nested = true
+    end
+
+  end
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.driver = "kvm"
+  end
+end

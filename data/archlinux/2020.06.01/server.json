@@ -1,0 +1,10 @@
+{
+  "arch_version": "",
+  "boot_command_prefix": "",
+  "iso_checksum": "133c639a753af64ddb8e7e89282d427f170f67ca",
+  "iso_checksum_type": "sha1",
+  "iso_url": "http://mirror.archlinux.ikoula.com/iso/2020.06.01/archlinux-2020.06.01-x86_64.iso",
+  "vm_name": "arch2020.03.01",
+  "description": "Arch Linux 2020.03.01",
+  "short_description": "Arch Linux 2020.03.01"
+}

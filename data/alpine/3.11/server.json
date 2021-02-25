@@ -1,0 +1,9 @@
+{
+  "alpine_system_part": "/dev/sda2",
+  "alpine_version": "3.11",
+  "boot_command_prefix": "",
+  "iso_checksum_type": "sha256",
+  "iso_url": "http://dl-cdn.alpinelinux.org/alpine/v3.11/releases/x86_64/alpine-standard-3.11.3-x86_64.iso",
+  "iso_checksum": "b351833b216195d83e948bb21aefc49d369a1a249fbeceb6b97000d6a5df589f",
+  "vm_name": "alpine3.11"
+}

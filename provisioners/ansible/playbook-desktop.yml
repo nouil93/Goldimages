@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: common
+    - role: vmtools
+    - { role: epel, when: ansible_os_family == "CentOS" }
+    - role: desktop
