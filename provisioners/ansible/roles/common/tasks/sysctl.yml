@@ -1,0 +1,9 @@
+---
+- name: Common | Apply sysctl settings
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop: "{{ common_sysctl }}"
+  when: common_sysctl | length > 0

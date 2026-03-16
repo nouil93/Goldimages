@@ -1,0 +1,6 @@
+---
+- name: Common | Install PS1 profile
+  copy:
+    src: ps1.sh
+    dest: /etc/profile.d/
+    mode: "0644"

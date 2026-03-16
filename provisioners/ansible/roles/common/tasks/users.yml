@@ -1,0 +1,19 @@
+---
+- name: Common | Ensure users exist
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups | default([]) }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    create_home: true
+    state: present
+  loop: "{{ common_users }}"
+
+- name: Common | Configure sudo nopasswd (optional)
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ item.name }}"
+    content: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+  when: item.sudo_nopasswd | default(false) | bool
+  loop: "{{ common_users }}"

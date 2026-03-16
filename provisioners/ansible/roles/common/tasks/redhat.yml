@@ -3,3 +3,9 @@
   copy:
     src: ps1.sh
     dest: /etc/profile.d/
+
+- name: Install common dependencies
+  ansible.builtin.yum:
+      name: "{{ common_packages }}"
+      update_cache: yes
+      state: present

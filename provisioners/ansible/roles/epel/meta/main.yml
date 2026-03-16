@@ -2,9 +2,9 @@
 dependencies: []
 
 galaxy_info:
-  author: ttest
+  author: fredericdelacour
   description: EPEL repository for RHEL/CentOS.
-  company: "Midwestern Mac, LLC"
+  company: ""
   license: "license (BSD, MIT)"
   min_ansible_version: 2.5
   platforms:
@@ -14,3 +14,4 @@ galaxy_info:
         - 6
         - 7
         - 8
+        - 9

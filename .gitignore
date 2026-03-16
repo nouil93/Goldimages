@@ -1,69 +1,69 @@
-# ---> Python
-# Byte-compiled / optimized / DLL files
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.tmp
+
+# Python (if any helper scripts)
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+.venv/
+venv/
 
-# C extensions
-*.so
+# Packer
+packer_cache/
+*.pkr.hcl.lock
+crash.log
 
-# Distribution / packaging
-.Python
-env/
+# Build outputs / artifacts
 build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
+output-*/
+*.qcow2
+*.raw
+*.img
+*.iso
+*.box
+*.ova
+*.vmdk
+*.vhd
+*.vhdx
 *.log
 
-# Sphinx documentation
-docs/_build/
+# Ansible
+*.retry
+*.fact
+.ansible/
+ansible.log
 
-# PyBuilder
-target/
+# Secrets (common patterns)
+**/*secret*
+**/*secrets*
+**/*password*
+**/*token*
+**/*apikey*
+**/.vault_pass*
+**/vault_pass*
+*.pem
+*.key
+*.p12
+*.pfx
+*.kubeconfig
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
 
-.vscode/
-venv/
-*.qcow2
-*.box
-*.manifest.json
-packer_cache/
-.vagrant/
-dist-*/
-.pytest_cache
+# Inventory that should not be published
+inventory/
+host_vars/
+group_vars/
+!inventory.example/
+!group_vars.example/
+!host_vars.example/
+
+# Docs build artifacts (recommend not publishing generated PDFs)
+doc/*.pdf
+docs/*.pdf
+*.pdf

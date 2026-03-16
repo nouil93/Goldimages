@@ -1,0 +1,23 @@
+---
+- name: Common | Update package cache (RedHat)
+  ansible.builtin.dnf:
+    update_cache: true
+  when: ansible_facts.os_family == "RedHat"
+
+- name: Common | Update package cache (Debian)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_facts.os_family == "Debian"
+
+- name: Common | Install packages (base + family-specific)
+  ansible.builtin.package:
+    name: "{{ common_packages
+              + (common_packages_redhat if ansible_facts.os_family == 'RedHat' else [])
+              + (common_packages_debian if ansible_facts.os_family == 'Debian' else []) }}"
+    state: present
+
+- name: Common | Set timezone (optional)
+  ansible.builtin.timezone:
+    name: "{{ common_timezone }}"
+  when: common_timezone | length > 0

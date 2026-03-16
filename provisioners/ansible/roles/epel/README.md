@@ -1,34 +1,49 @@
-# Ansible Role: EPEL Repository
+# Ansible Role: epel
 
-Installs the [EPEL repository](https://fedoraproject.org/wiki/EPEL) (Extra Packages for Enterprise Linux) for RHEL/CentOS.
+Installs and manages the **EPEL (Extra Packages for Enterprise Linux)** repository
+on Red Hat Enterprise Linux and compatible distributions.
+
+This role is designed for automated infrastructure builds such as
+**Goldimage pipelines**, CI environments, and hardened server deployments.
+
+---
+
+## Supported Platforms
+
+| Distribution | Versions |
+|---|---|
+| Rocky Linux | 8, 9 |
+| AlmaLinux | 8, 9 |
+| RHEL | 8, 9 |
+| CentOS Stream | 8, 9 |
+
+---
+
+## Role Philosophy
+
+This role follows Goldimage principles:
+
+- Idempotent execution
+- Minimal system modification
+- Secure defaults
+- CI-tested with Molecule
+
+The role only enables EPEL when running on supported RedHat-family systems.
+
+---
 
 ## Requirements
 
-This role only is needed/runs on RHEL and its derivatives.
+- Ansible >= 2.14
+- Root privileges
+
+---
 
 ## Role Variables
 
-Available variables are listed below, along with default values (see `defaults/main.yml`):
+Defaults are defined in `defaults/main.yml`.
 
-    epel_repo_url: "http://download.fedoraproject.org/pub/epel/{{ ansible_distribution_major_version }}/{{ ansible_userspace_architecture }}{{ '/' if ansible_distribution_major_version < '7' else '/e/' }}epel-release-{{ ansible_distribution_major_version }}-{{ epel_release[ansible_distribution_major_version] }}.noarch.rpm"
-    epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-
-The EPEL repo URL and GPG key URL. Generally, these should not be changed, but if this role is out of date, or if you need a very specific version, these can both be overridden.
-
-## Dependencies
-
-None.
-
-## Example Playbook
-
-    - hosts: servers
-      roles:
-        - epel
-
-## License
-
-MIT / BSD
-
-## Author Information
-
-This role was created in 2020.
+```yaml
+epel_repo_url: "<auto-detected>"
+epel_repo_gpg_key_url: "<auto-detected>"
+epel_enabled: true

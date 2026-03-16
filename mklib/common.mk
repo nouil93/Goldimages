@@ -1,111 +1,57 @@
-VENV_NAME     ?=venv
-PYTHON        =${VENV_NAME}/bin/python3
+VENV_NAME     ?= venv
+PYTHON        = ${VENV_NAME}/bin/python3
 VENV_ACTIVATE = . $(VENV_NAME)/bin/activate
-## func miscelianous
 cyan          = echo -e "\x1b[36m\#\# $1\x1b[0m"
 pink          = echo -e "\x1b[35m\#\# $1\x1b[0m"
-green         = echo -e "\x1b[32m\#\# $1\x1b[0m"
-blue          = echo -e "\x1b[34m\#\# $1\x1b[0m"
-red           = echo -e "\x1b[31m\#\# $1\x1b[0m"
-yellow        = echo -e "\x1b[33m\#\# $1\x1b[0m"
+green         = echo -e "\x1b[34m\#\# $1\x1b[0m"
+red           = echo -e "\x1b[33m\#\# $1\x1b[0m"
 #
-backup_dest   ?=~/Documents/20.Backup
 
-GITFLOW_BR_MASTER       = production
-GITFLOW_BR_DEVELOP      = master
-CURRENT_BRANCH          = $(shell git rev-parse --abbrev-ref HEAD)
-GIT_BRANCHES            = $(shell git for-each-ref --format='%(refname:short)' refs/heads/ | xargs echo)
-GIT_REMOTES             = $(shell git remote | xargs echo )
-GIT_ROOTDIR             = $(shell git rev-parse --show-toplevel)
-GIT_HOOKSDIR            = .git/hooks
-SRC_HOOKSDIR            = config/hooks
-#SRC_HOOKSDIR_TO_ROOTDIR = $(shell git -C "$(GIT_ROOTDIR)/$(SRC_HOOKSDIR)" rev-parse --show-cdup)
-SRC_PRECOMMIT_HOOK      = $(wildcard $(SRC_HOOKSDIR)/pre-commit*.sh)
+TS := $(shell date +%Y%m%d-%H%M%S)
+GIT_SHA := $(shell git rev-parse --short HEAD 2>/dev/null || echo nogit)
+DIST_DIR := dist
+ARCHIVE := $(DIST_DIR)/$(PROJECT)-$(TS)-$(GIT_SHA).tar.gz
 
-GIT_DATE     = $(shell git log -n 1 --format="%ci")
-GIT_HASH     = $(shell git log -n 1 --format="%h")
-GITINFO 	 = .$(GIT_HASH).$(GIT_BRANCH)
-GIT_REMOTE_URL = $(shell git config --get remote.origin.url)
-SHELL        = /bin/bash
-VERSION      = $(shell [ -f VERSION ] && head VERSION || echo '0.0.1')
-MAJOR        = $(shell echo $(VERSION) | sed "s/^\([0-9]*\).*/\1/")
-MINOR        = $(shell echo $(VERSION) | sed "s/[0-9]*\.\([0-9]*\).*/\1/")
-PATCH        = $(shell echo $(VERSION) | sed "s/[0-9]*\.[0-9]*\.\([0-9]*\).*/\1/")
-# total number of commits
-BUILD        = $(shell git log --oneline | wc -l | sed -e "s/[ \t]*//g")
-GIT_DIRTY    = $(shell git diff --shortstat 2> /dev/null | tail -n1 )
+SHELL=/bin/bash
 
-venv: $(VENV_NAME)/bin/activate
+venv: $(VENV_NAME)/bin/activate ## Python venv mmgt
 $(VENV_NAME)/bin/activate: requirements.txt
-	@test ! -d $(VENV_NAME) && python3 -m venv $(VENV_NAME) || \
-		$(call cyan, "Updating VirtualEnv...")
-	@[ ! -z $(proxy) ] && \
-		${PYTHON} -m pip install --proxy ${proxy} --upgrade pip && \
-		${PYTHON} -m pip install --proxy ${proxy} --upgrade --requirement requirements.txt \
+	test -d $(VENV_NAME) || python3 -m venv $(VENV_NAME)
+	[ ! -z $(proxy) ] && \
+	${PYTHON} -m pip install --proxy ${proxy} --upgrade pip && \
+	${PYTHON} -m pip install --proxy ${proxy} --upgrade --requirement requirements.txt \
 	|| \
-		${PYTHON} -m pip install --upgrade pip && \
-		${PYTHON} -m pip install --upgrade --requirement requirements.txt
-	@touch $(VENV_NAME)/bin/activate
+	${PYTHON} -m pip install --upgrade pip && \
+	${PYTHON} -m pip install --upgrade --requirement requirements.txt
+	touch $(VENV_NAME)/bin/activate
+ 
 
-backup: clean
-	@$(call blue, Backup $(projet))
-	@tar --create \
-		--gzip \
-		-f $(backup_dest)/$(projet)-$(shell date --date='TZ="Europe/Paris"' +%Y-%m-%d).tar.gz \
-			--exclude='./tmp' \
-			--exclude='./.vagrant' \
-			--exclude='./share' \
-			--exclude='./bin' \
-			--exclude='./.git' \
-			--exclude='./.vscode' \
-			--exclude='./tmp' \
-			--exclude='./packer_cache' \
-			--exclude='./build' \
-			--exclude='./packer' \
-			--exclude='./*.iso' \
-			--exclude='./*.box' \
-			--exclude='./*.qcow2' \
-			--exclude='./*.rpm' \
-			--exclude='./builder/.vagrant' \
-			--exclude='./*.sql' \
-			--exclude='./*.tar.gz' \
-			--exclude='./venv' \
-			--exclude='./dist*' \
-			--exclude='./assets' .
-		@stat $(backup_dest)/$(projet)-$(shell date --date='TZ="Europe/Paris"' +%Y-%m-%d).tar.gz
-
-.default-menu:
-	@cat mklib/Goldimages.art
-	@$(call cyan, $(projet) $(GIT_DATE).)
-	@$(call cyan, $(GIT_REMOTE_URL))
-	@$(call cyan, date: $(GIT_DATE))
-	@$(call cyan, Gitinfo: $(GITINFO))
-	@echo "make doc/build      - build $(projet) documentation"
-	@echo "make doc/upload     - upload $(projet) documentation"
-	@echo "make doc/server     - run development documentation env"
-	@echo "make doc/help       - documentation mkdocs"
-	@echo "make backup 			- Generate tarball of this projet $(projet)"
-	@echo "make clean           - Clean all projet $(projet)"
-
-docs/build: venv
-	$(VENV_ACTIVATE) && mkdocs build
-
-.PHONY: docs/serve
-docs/serve: venv
-	$(VENV_ACTIVATE) && mkdocs serve
-
-.PHONY: docs/help
-docs/help: venv
-	$(VENV_ACTIVATE) && mkdocs help
-
-docs-upload: docs-build
-	cp -r site ../17.Mylabs/repository/www/docs/$(projet)
+.PHONY: .default-menu
+.default-menu: 
+	@echo -ne "\x1b[33m            .MMM..:MMMMMMM                  ${projet} \x1b[0m\n"
+	@echo -ne "\x1b[33m           MMMMMMMMMMMMMMMMMM               OS: Red Hat Enterprise Linux \x1b[0m\n"
+	@echo -ne "\x1b[33m           MMMMMMMMMMMMMMMMMMMM.            OS: Rocky Linux\x1b[0m\n"
+	@echo -ne "\x1b[33m          MMMMMMMMMMMMMMMMMMMMMM            OS: Centos Linux\x1b[0m\n"
+	@echo -ne "\x1b[33m         ,MMMMMMMMMMMMMMMMMMMMMM:           \x1b[0m\n"
+	@echo -ne "\x1b[33m         MMMMMMMMMMMMMMMMMMMMMMMM           \x1b[0m\n"
+	@echo -ne "\x1b[33m   .MMMM'  MMMMMMMMMMMMMMMMMMMMMM           \x1b[0m\n"
+	@echo -ne "\x1b[33m  MMMMMM    \`MMMMMMMMMMMMMMMMMMMM.          \x1b[0m\n"
+	@echo -ne "\x1b[33m MMMMMMMM      MMMMMMMMMMMMMMMMMM .         \x1b[0m\n"
+	@echo -ne "\x1b[33m MMMMMMMMM.       \`MMMMMMMMMMMMM' MM.       \x1b[0m\n"
+	@echo -ne "\x1b[33m MMMMMMMMMMM.                     MMMM      \x1b[0m\n"
+	@echo -ne "\x1b[33m \`MMMMMMMMMMMMM.                 ,MMMMM.    \x1b[0m\n"
+	@echo -ne "\x1b[33m  \`MMMMMMMMMMMMMMMMM.          ,MMMMMMMM.   \x1b[0m\n"
+	@echo -ne "\x1b[33m     MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM   \x1b[0m\n"
+	@echo -ne "\x1b[33m       MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM:   \x1b[0m\n"
+	@echo -ne "\x1b[33m          MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM    \x1b[0m\n"
+	@echo -ne "\x1b[33m             \`MMMMMMMMMMMMMMMMMMMMMMMM:     \x1b[0m\n"
+	@echo -ne "\x1b[33m                 \`\`MMMMMMMMMMMMMMMMM'       \x1b[0m\n\n"
+	@echo -ne "\x1b[33m$(description) \x1b[0m\n\n"
+	@printf "$$(grep -hE '^\S+:.*##' $(MAKEFILE_LIST) | sed -e 's/:.*##\s*/:/' -e 's/^\(.\+\):\(.*\)/\\x1b[36m\1\\x1b[m:\2/' | column -c2 -t -s :)\n"
 
 # Test values of variables - for debug purposes
 info:
-	@$(call red, $(VERSION).)
-	@$(call red, Build $(BUILD).)
-	@echo "--- Build $(BUILD)--- "
+	@echo "--- Compilation commands --- "
 	@echo "HAS_GITFLOW      -> '$(HAS_GITFLOW)'"
 	@echo "--- Directories --- "
 	@echo "SUPER_DIR    -> '$(SUPER_DIR)'"
@@ -126,3 +72,31 @@ info:
 	@echo "SRC_PRECOMMIT_HOOK     -> '$(SRC_PRECOMMIT_HOOK)'"
 	@echo ""
 	@echo "Consider running 'make versioninfo' to get info on git versionning variables"
+
+$(DIST_DIR):
+	@mkdir -p $(DIST_DIR)
+
+.PHONY: export
+export: | $(DIST_DIR)
+	@echo "Exporting snapshot -> $(ARCHIVE)"
+	@if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then \
+		git archive --format=tar.gz --prefix=$(PROJECT)/ -o "$(ARCHIVE)" HEAD; \
+	else \
+		tar --exclude='./.git' \
+		    --exclude='./.venv' --exclude='./venv' \
+			--exclude='./packer' --exclude='.packer_cache' --exclude='.packer'\
+		    --exclude='./__pycache__' --exclude='./.pytest_cache' \
+		    --exclude='./.mypy_cache' --exclude='./.ruff_cache' \
+		    --exclude='./dist' --exclude='./build' --exclude='./output' --exclude='./_build' \
+		    -czf "$(ARCHIVE)" .; \
+	fi
+	@echo "Done: $(ARCHIVE)"
+
+.PHONY: clean
+clean:
+	rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache dist build
+
+.PHONY: clean-builds
+clean-builds:
+	rm -rf output/_build
+	

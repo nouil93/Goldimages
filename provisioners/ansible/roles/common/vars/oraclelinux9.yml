@@ -1,0 +1,10 @@
+---
+common_packages:
+    - vim
+    - net-tools
+    - cowsay
+    - bash-completion
+    - initscripts
+    - python-devel
+    - python3-dnf
+    - htop

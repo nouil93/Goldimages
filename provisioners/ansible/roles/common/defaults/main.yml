@@ -1,29 +1,43 @@
 ---
-# defaults file
-common_packages:
-  - cowsay
-  - vim
-  - net-tools
+# Toggle/debug
+common_debug: false
 
-env: undefined
+# Packages
+common_packages: []
+common_packages_redhat: []
+common_packages_debian: []
 
-run_not_in_container: False
+# Timezone / locale (optional)
+common_timezone: ""   # e.g. "America/Denver" ; empty = don't change
 
-motd_content: |
-  --------------------------------------------------------------------------
-                      This system is managed by Ansible
-                                                                  D\___/
-                                                                   (0_o)
-                                                                    (V)
-  --------------------------------------------------------93fd--oOo--U--oOo-
+# MOTD
+common_manage_motd: true
+common_motd_banner: "Goldimages"
 
-  This is {{ ansible_fqdn }} running {{ ansible_distribution }} \
-      {{ ansible_distribution_version }} {{ ansible_distribution_release }}.
-  Virtual: {{ 'YES' if ansible_virtualization_role == 'guest' else 'NO' }}
-  Environment: {{ env }}
-  FQDN:   {{ ansible_fqdn }}
-  CPUs:   {{ ansible_processor_vcpus }}
-  RAM:    {{ (ansible_memtotal_mb / 1000) | round(1) }}GB
-  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Users / SSH
+# NOTE: For public repo safety, default to NO keys.
+# In your build vars (packer vars), set common_ssh_users: ["vagrant"] if desired.
+common_ssh_users: []          # e.g. ["vagrant"]
+common_authorized_keys: []    # list of SSH public keys
 
-  Last ansible run: {{ ansible_date_time.iso8601 }}
+# Optionally ensure users exist
+common_manage_users: false
+common_users: []
+# Example:
+# common_users:
+#   - name: vagrant
+#     groups: ["wheel"]
+#     shell: /bin/bash
+#     sudo_nopasswd: true
+
+# SSH hardening (lightweight; for full hardening use dev-sec collection)
+common_manage_sshd: true
+common_sshd_password_authentication: "no"
+common_sshd_permit_root_login: "no"
+common_sshd_pubkey_authentication: "yes"
+
+# sysctl basics (optional)
+common_sysctl:
+  - { key: "net.ipv4.ip_forward", value: "0" }
+  - { key: "net.ipv4.conf.all.accept_redirects", value: "0" }
+  - { key: "net.ipv4.conf.all.send_redirects", value: "0" }

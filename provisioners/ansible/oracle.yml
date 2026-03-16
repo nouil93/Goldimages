@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: true
+  gather_facts: yes
+  roles:
+    - common
+    - oracle19c
+    - dbca
+  vars:
+    redhat_packages:
+      - acpid
+      - htop

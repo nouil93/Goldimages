@@ -1,0 +1,21 @@
+- name: Common | Select MOTD template
+  ansible.builtin.set_fact:
+    common_motd_template: >-
+      {{
+        lookup('first_found', {
+          'files': [
+            'motd/' + ansible_facts.distribution | lower + '.j2',
+            'motd/' + ansible_facts.os_family | lower + '.j2',
+            'motd/default.j2'
+          ],
+          'paths': ['templates']
+        })
+      }}
+
+- name: Common | Deploy MOTD
+  ansible.builtin.template:
+    src: "{{ common_motd_template }}"
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: "0644"

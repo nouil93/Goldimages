@@ -1,18 +1,14 @@
 ---
 galaxy_info:
-  author: Frederic DELACOUR
-  description: cosmetique role
-
-  license: MIT
-
-  min_ansible_version: 2.5
-
+  namespace: fredericdelacour      # must be lowercase, no spaces, no dash at ends
+  role_name: goldimages_common     # lowercase, letters/numbers/underscore
+  author: "Frédéric Delacour"
+  description: "Baseline configuration for gold images (packages, users, ssh, motd)."
+  license: "MIT"
+  min_ansible_version: "2.14"
   platforms:
-    - name: Centos
-      versions:
-        - 7
-    - name: Fedora
-      versions:
-        - 31
-
+    - name: EL
+      versions: ["9"]
+    - name: Debian
+      versions: ["11", "12"]
 dependencies: []

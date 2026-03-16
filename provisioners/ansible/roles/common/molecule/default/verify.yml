@@ -1,0 +1,67 @@
+---
+- name: Verify Goldimage Common Role
+  hosts: all
+  gather_facts: false
+  become: false
+
+  vars:
+    # One unique string that exists in your Rocky ASCII art
+    common_verify_motd_signature: "Rocky"
+
+    # Expected sysctl values
+    common_verify_sysctl:
+      net.ipv4.ip_forward: "0"
+      net.ipv4.conf.all.accept_redirects: "0"
+      net.ipv4.conf.all.send_redirects: "0"
+
+  tasks:
+
+    # -------------------------------------------------
+    # MOTD CHECK
+    # -------------------------------------------------
+
+    - name: Verify | Read MOTD
+      ansible.builtin.slurp:
+        path: /etc/motd
+      register: motd_file
+
+    - name: Verify | Assert Rocky ASCII present
+      ansible.builtin.assert:
+        that:
+          - common_verify_motd_signature in (motd_file.content | b64decode)
+        fail_msg: "MOTD does not contain expected Rocky ASCII signature"
+
+    # -------------------------------------------------
+    # PS1 CHECK
+    # -------------------------------------------------
+
+    - name: Verify | Check PS1 script exists
+      ansible.builtin.stat:
+        path: /etc/profile.d/ps1.sh
+      register: ps1_stat
+
+    - name: Verify | Assert PS1 script present
+      ansible.builtin.assert:
+        that:
+          - ps1_stat.stat.exists
+          - ps1_stat.stat.isreg
+        fail_msg: "/etc/profile.d/ps1.sh is missing"
+
+    # -------------------------------------------------
+    # SYSCTL CHECK
+    # -------------------------------------------------
+
+    - name: Verify | Read sysctl values
+      ansible.builtin.command: "sysctl -n {{ item.key }}"
+      loop: "{{ common_verify_sysctl | dict2items }}"
+      register: sysctl_results
+      changed_when: false
+      failed_when: false
+
+    - name: Verify | Assert sysctl values
+      ansible.builtin.assert:
+        that:
+          - item.stdout == common_verify_sysctl[item.item.key]
+        fail_msg: "Sysctl {{ item.item.key }} has wrong value"
+      loop: "{{ sysctl_results.results }}"
+      when: item.rc == 0
