@@ -1,8 +1,0 @@
---- isolinux.cfg	2019-06-20 15:17:19.476874810 +0200
-+++ isolinux-correction.cfg	2019-06-20 15:21:09.294980548 +0200
-@@ -1,3 +1,5 @@
-+default vesamenu.c32
-+timeout 600
- prompt 1
- timeout 0
- serial 0 115200
