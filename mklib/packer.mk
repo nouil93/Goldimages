@@ -1,3 +1,14 @@
+# ------------------------------------------------------------------------------
+# Packer bootstrap
+# Downloads, verifies, installs, and prepares the local Packer binary.
+# Author: Frédéric Delacour
+# ------------------------------------------------------------------------------
+
+PACKER_BIN          ?= ./packer
+PACKER_ZIP          := $(notdir $(packer_url))
+PACKER_SHA256SUMS   := $(notdir $(packer_SHA256SUMS_url))
+
+
 packer: ## Packer download and verify
 	http_proxy=$(proxy) \
 	https_proxy=$(proxy) \
