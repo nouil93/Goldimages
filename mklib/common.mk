@@ -1,10 +1,44 @@
+# ==============================================================================
+#  Makefile - Infrastructure Automation & Packaging
+# ==============================================================================
+#
+#  Author: Frédéric Delacour
+#  Project: Infrastructure Automation Blueprint
+#
+#  Description:
+#    This Makefile provides automation for:
+#      - Python virtual environment management
+#      - Dependency installation
+#      - Build/export packaging (tar.gz)
+#      - Cleanup routines
+#
+#    Designed for reproducible DevOps workflows and CI/CD integration.
+#
+#  Usage:
+#    make venv        # Create Python virtual environment
+#    make export      # Create versioned archive
+#    make clean       # Clean cache/build artifacts
+#    make info        # Debug environment variables
+#
+#  Requirements:
+#    - GNU Make
+#    - Python 3.x
+#    - Git (optional, for versioned export)
+#
+#  License:
+#    MIT (or your choice)
+#
+# ==============================================================================
+
 VENV_NAME     ?= venv
 PYTHON        = ${VENV_NAME}/bin/python3
 VENV_ACTIVATE = . $(VENV_NAME)/bin/activate
 cyan          = echo -e "\x1b[36m\#\# $1\x1b[0m"
 pink          = echo -e "\x1b[35m\#\# $1\x1b[0m"
-green         = echo -e "\x1b[34m\#\# $1\x1b[0m"
-red           = echo -e "\x1b[33m\#\# $1\x1b[0m"
+blue   		  = echo -e "\x1b[34m\#\# $1\x1b[0m"
+yellow 		  = echo -e "\x1b[33m\#\# $1\x1b[0m"
+green 		  = echo -e "\x1b[32m\#\# $1\x1b[0m"
+red  		  = echo -e "\x1b[31m\#\# $1\x1b[0m"
 #
 
 TS := $(shell date +%Y%m%d-%H%M%S)
@@ -13,6 +47,8 @@ DIST_DIR := dist
 ARCHIVE := $(DIST_DIR)/$(PROJECT)-$(TS)-$(GIT_SHA).tar.gz
 
 SHELL=/bin/bash
+
+.PHONY: venv export clean clean-builds info
 
 venv: $(VENV_NAME)/bin/activate ## Python venv mmgt
 $(VENV_NAME)/bin/activate: requirements.txt
@@ -88,6 +124,7 @@ export: | $(DIST_DIR)
 		    --exclude='./__pycache__' --exclude='./.pytest_cache' \
 		    --exclude='./.mypy_cache' --exclude='./.ruff_cache' \
 		    --exclude='./dist' --exclude='./build' --exclude='./output' --exclude='./_build' \
+			--exclude='./build' \
 		    -czf "$(ARCHIVE)" .; \
 	fi
 	@echo "Done: $(ARCHIVE)"

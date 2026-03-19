@@ -1,7 +1,15 @@
-##
-# (C) Copyright 2000-2026
-# Frédéric Delacour, <frederic.delacour@gmail.com>.
+# ==============================================================================
+# GoldImages Makefile
+# ==============================================================================
 #
+# Copyright (c) 2000-2026 Frédéric Delacour
+# Author: Frédéric Delacour
+#
+# Description:
+#   Automation entrypoint for GoldImages image builds, validation, packaging,
+#   and documentation generation using Packer, Podman, and Pandoc.
+#
+# ==============================================================================
 
 PROJECT					:=	Goldimages
 description				=	"standardizes and automates building system process."
@@ -10,13 +18,14 @@ packer_url				=	https://releases.hashicorp.com/packer/$(packer_version)/packer_$
 packer_SHA256SUMS_url	=	https://releases.hashicorp.com/packer/$(packer_version)/packer_$(packer_version)_SHA256SUMS
 packer_log 				?=	0
 
-shell					:=	/bin/bash -e
+shell					:=	/bin/bash
+.SHELLFLAGS := -e -c
 
 .DEFAULT_GOAL := help
 
 .PHONY: help
 help: .default-menu
-	@echo "packer version: $(packer_version)"
+	@echo "packer version: $(packer_version)".PHONY: packer
 
 include mklib/common.mk
 include mklib/packer.mk
