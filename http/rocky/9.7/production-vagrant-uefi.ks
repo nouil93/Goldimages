@@ -1,7 +1,22 @@
-# Kickstart file to build Rocky 9 Guest image.
-# This image is used to test Rocky 9 content for
-# the cloud instances. This image provides minimally configured
-# system image.
+# ==============================================================================
+# Kickstart - Rocky Linux 9.7 Image
+# ==============================================================================
+#
+# Author: Frédéric Delacour
+# Project: GoldImages
+# Description:
+#   Automated Kickstart definition for building a minimal Rocky Linux 9 guest
+#   image for virtualized environments.
+#
+# Target Platforms:
+#   - Vagrant
+#
+# Notes:
+#   - Uses LVM-based partitioning
+#   - Optimized for cloud/virtual guest deployments
+#   - Intended for automated image build pipelines with Packer
+#
+# ==============================================================================
 
 
 # License agreement
@@ -28,7 +43,7 @@ services --enabled=sshd,NetworkManager,cloud-init,cloud-init-local,cloud-config,
 rootpw --iscrypted nope
 
 user --groups=wheel --name=vagrant --password=vagrant --uid=1000 --gecos="user" --gid=1000
-sshkey --username=vagrant "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCaph3Y0YIdzkBJrtdFsPWxjt+IBNEB17+h+8YH3Z6DBWA7nuBlSJzziB7Al7TGpPs6T6K4vkfKIVCzNqXWU0xnylzqM0/Hwer7aq0L6gD/SqGiPL5W0ypAWvb1/NFiBDoRezdQhu4UDi+JWoV1upc5nPeTs48pCmggq/UJZRJD/fb6Uv+a54hx48VaIPpLdc8WjEWJR63//fTrmXc/engDo/l1yX8lv8HlPcjqWYVUPUXOC5QoZ8q1Qh+601gjWU+FXs7xlR1H5pGLcoxP5kf7jkajGcDwz57m+kv6qJ1Zz9CI3QHNKttHTpB4+NNcNzwdLqyFuuzJ2eIFP+6ilaztLN23IHrS4+zkyfWiNNFpnNwh8YKCaMj5ym9nVQ2fOtRCa1LGSKTysHNfZsfmA+nlEoYw80cWWAteYvMeqhORrcUwVMD3vJrR6vvGbq8NuypOLjVoxnJN27gQ4eUmhFYTZWWBUNa2F72cyIVN534oYkTRoHLQyYTvjqrg89oqwpOcsM5jJuq734umDpEaCh0Fg+G1ZFIEk46q0VZPKWz5V7LJBYydBRQHVYgft0CGCEIAUgW+J4yhxiITx9ISrXQ/9OAp7zuQ6ZURYJX6HUbh9stHs42OdN5sNeV+YsKB6JG37dx+R7RhL6osIbgkaChXE9CqisAcRgcrdJEutOVoDw== fred@sirius"
+sshkey --username=vagrant "ssh-rsa AAAAB3Nza..."
 
 url --url="https://download.rockylinux.org/pub/rocky/9/BaseOS/x86_64/kickstart/"
 

@@ -1,5 +1,24 @@
-# Kickstart file to build Rocky 9.6 Guest image.
-# This image is used at Chpvp in Development 
+# ==============================================================================
+# Kickstart - Rocky Linux 9.7
+# ==============================================================================
+#
+# Author: Frédéric Delacour
+# Project: GoldImages
+# Description:
+#   Automated Kickstart definition for building a minimal Rocky Linux 9 guest
+#   image for virtualized environments.
+#
+# Target Platforms:
+#   - Vagrant
+#
+# Notes:
+#   - Uses LVM-based partitioning
+#   - Optimized for cloud/virtual guest deployments
+#   - Intended for automated image build pipelines with Packer
+#
+# ==============================================================================
+
+
 # Based on: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/performing_an_advanced_rhel_installation/index
 
 # License agreement

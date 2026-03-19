@@ -1,8 +1,22 @@
-# Kickstart file to build Rocky 9 Guest image.
-# This image is used to test Rocky 9 content for
-# the cloud instances. This image provides minimally configured
-# system image.
-
+# ==============================================================================
+# Kickstart - Rocky Linux 9.6 Image
+# ==============================================================================
+#
+# Author: Frédéric Delacour
+# Project: GoldImages
+# Description:
+#   Automated Kickstart definition for building a minimal Rocky Linux 9 guest
+#   image for virtualized environments.
+#
+# Target Platforms:
+#   - Libvirt
+#
+# Notes:
+#   - Uses LVM-based partitioning
+#   - Optimized for cloud/virtual guest deployments
+#   - Intended for automated image build pipelines with Packer
+#
+# ==============================================================================
 
 # License agreement
 eula --agreed

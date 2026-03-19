@@ -1,3 +1,23 @@
+// ==============================================================================
+//  Packer Template - GoldImages
+// ==============================================================================
+//
+//  Author: Frédéric Delacour
+//  Project: GoldImages (Infrastructure Image Automation)
+//
+//  Description:
+//    Multi-target Packer build pipeline for:
+//      - Vagrant (qcow2 / .box)
+//      - Libvirt (qcow2)
+//      - Nutanix AHV (qcow2 / raw)
+//
+//    Includes Ansible provisioning and post-processing workflows.
+//
+//  License:
+//    MIT (or your choice)
+//
+// ==============================================================================
+
 packer {
   required_plugins {
     qemu = {

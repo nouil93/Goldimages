@@ -1,7 +1,22 @@
-#version=RHEL9
-
-# Kickstart for HeadlessCISPodman
-# Version 9.2.1
+# ==============================================================================
+# Kickstart - Rocky Linux 9.6 Image
+# ==============================================================================
+#
+# Author: Frédéric Delacour
+# Project: GoldImages
+# Description:
+#   Automated Kickstart definition for building a minimal Rocky Linux 9 guest
+#   image for virtualized environments.
+#
+# Target Platforms:
+#   - Vagrant
+#
+# Notes:
+#   - Uses LVM-based partitioning
+#   - Optimized for cloud/virtual guest deployments
+#   - Intended for automated image build pipelines with Packer
+#
+# ==============================================================================
 
 # License agreement
 eula --agreed
