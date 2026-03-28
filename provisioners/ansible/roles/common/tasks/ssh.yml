@@ -1,31 +1,34 @@
 ---
-- name: Common | Install authorized_keys
+- name: Common | Check whether sshd_config exists
+  ansible.builtin.stat:
+    path: /etc/ssh/sshd_config
+  register: common_sshd_config
+
+- name: Common | Install authorized keys for managed users
   ansible.posix.authorized_key:
-    user: "{{ item_user }}"
-    key: "{{ item_key }}"
+    user: "{{ item.0 }}"
+    key: "{{ item.1 }}"
     state: present
     manage_dir: true
-  loop: "{{ common_authorized_keys }}"
-  loop_control:
-    loop_var: item_key
-  vars:
-    item_user: "{{ (common_ssh_users | first) | default('vagrant') }}"
+  loop: "{{ common_ssh_users | product(common_authorized_keys) | list }}"
   when:
-    - common_authorized_keys | length > 0
     - common_ssh_users | length > 0
+    - common_authorized_keys | length > 0
 
-- name: Common | SSHD settings
+- name: Common | Configure sshd settings
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "^{{ item.key }}\\s+"
     line: "{{ item.key }} {{ item.value }}"
     create: false
-    backrefs: false
   loop:
-    - { key: "PasswordAuthentication", value: "{{ common_sshd_password_authentication }}" }
-    - { key: "PermitRootLogin", value: "{{ common_sshd_permit_root_login }}" }
-    - { key: "PubkeyAuthentication", value: "{{ common_sshd_pubkey_authentication }}" }
+    - key: PasswordAuthentication
+      value: "{{ common_sshd_password_authentication }}"
+    - key: PermitRootLogin
+      value: "{{ common_sshd_permit_root_login }}"
+    - key: PubkeyAuthentication
+      value: "{{ common_sshd_pubkey_authentication }}"
   when:
     - common_manage_sshd | bool
-    - (common_sshd_config.stat.exists | default(false))
-  notify: restart sshd
+    - common_sshd_config.stat.exists | default(false)
+  notify: Restart sshd

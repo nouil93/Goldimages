@@ -1,30 +1,28 @@
 ---
 - name: Common | Packages
-  import_tasks: packages.yml
+  ansible.builtin.import_tasks: packages.yml
   tags: [common, packages]
 
 - name: Common | Users
-  import_tasks: users.yml
+  ansible.builtin.import_tasks: users.yml
   when: common_manage_users | bool
   tags: [common, users]
 
-- name: Common | Authorized keys
-  import_tasks: ssh.yml
-  tags: [common, ssh, keys]
-
-- name: Common | SSHD config
-  import_tasks: ssh.yml
-  tags: [common, ssh, sshd]
+- name: Common | SSH
+  ansible.builtin.import_tasks: ssh.yml
+  tags: [common, ssh]
 
 - name: Common | MOTD
-  import_tasks: motd.yml
+  ansible.builtin.import_tasks: motd.yml
   when: common_manage_motd | bool
   tags: [common, motd]
 
 - name: Common | PS1
-  import_tasks: ps1.yml
+  ansible.builtin.import_tasks: ps1.yml
+  when: common_manage_ps1 | bool
   tags: [common, ps1]
 
-- name: Common | sysctl
-  import_tasks: sysctl.yml
+- name: Common | Sysctl
+  ansible.builtin.import_tasks: sysctl.yml
+  when: common_sysctl | length > 0
   tags: [common, sysctl]

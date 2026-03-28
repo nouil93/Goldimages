@@ -1,43 +1,43 @@
 ---
-# Toggle/debug
-common_debug: false
+# Base packages installed on all supported systems.
+common_packages:
+  - vim
+  - curl
+  - bash-completion
 
-# Packages
-common_packages: []
-common_packages_redhat: []
-common_packages_debian: []
+# Small family-specific additions. Keep these conservative for image portability.
+common_packages_by_family:
+  RedHat:
+    - acpid
+    - net-tools
+  Debian:
+    - net-tools
 
-# Timezone / locale (optional)
-common_timezone: ""   # e.g. "America/Denver" ; empty = don't change
+# Optional timezone. Leave empty to skip.
+common_timezone: ""
 
-# MOTD
+# MOTD and shell customization.
 common_manage_motd: true
-common_motd_banner: "Goldimages"
+common_manage_ps1: true
+common_motd_banner: "GoldImages"
 
-# Users / SSH
-# NOTE: For public repo safety, default to NO keys.
-# In your build vars (packer vars), set common_ssh_users: ["vagrant"] if desired.
-common_ssh_users: []          # e.g. ["vagrant"]
-common_authorized_keys: []    # list of SSH public keys
-
-# Optionally ensure users exist
+# User and SSH management.
 common_manage_users: false
 common_users: []
-# Example:
-# common_users:
-#   - name: vagrant
-#     groups: ["wheel"]
-#     shell: /bin/bash
-#     sudo_nopasswd: true
+common_ssh_users: []
+common_authorized_keys: []
 
-# SSH hardening (lightweight; for full hardening use dev-sec collection)
+# Lightweight sshd settings.
 common_manage_sshd: true
-common_sshd_password_authentication: "no"
-common_sshd_permit_root_login: "no"
-common_sshd_pubkey_authentication: "yes"
+common_sshd_password_authentication: 'no'
+common_sshd_permit_root_login: 'no'
+common_sshd_pubkey_authentication: 'yes'
 
-# sysctl basics (optional)
+# Optional sysctl baseline.
 common_sysctl:
-  - { key: "net.ipv4.ip_forward", value: "0" }
-  - { key: "net.ipv4.conf.all.accept_redirects", value: "0" }
-  - { key: "net.ipv4.conf.all.send_redirects", value: "0" }
+  - key: net.ipv4.ip_forward
+    value: '0'
+  - key: net.ipv4.conf.all.accept_redirects
+    value: '0'
+  - key: net.ipv4.conf.all.send_redirects
+    value: '0'

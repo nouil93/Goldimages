@@ -1,6 +1,8 @@
 ---
 - name: Common | Install PS1 profile
-  copy:
+  ansible.builtin.copy:
     src: ps1.sh
-    dest: /etc/profile.d/
-    mode: "0644"
+    dest: /etc/profile.d/ps1.sh
+    owner: root
+    group: root
+    mode: '0644'

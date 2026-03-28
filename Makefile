@@ -45,37 +45,48 @@ validate/rocky-9.7_standard-vagrant-uefi.ks:
 	
 
 build/rocky-9.7_vagrant.standard.uefi.box: init .goldimages ## Build Rocky 9.7 standard partition 100Gb
-	$(call green, Build Rocky 9.7 Vagrant Standart Partition UEFI box image')
+	@$(call green, Build Rocky 9.7 Vagrant Standart Partition UEFI box image')
 	PACKER_LOG=$(packer_log) PACKER_PLUGIN_PATH="$(shell pwd)/.packer/plugins"  PACKER_CACHE_DIR="$(shell pwd)/.packer_cache"  ./packer  build -on-error=abort -machine-readable --var-file=data/rocky/9.7/standard.pkrvars.hcl -only=vagrant.qemu.rhel .
 
 build/rocky-9.6_vagrant.standard.uefi.box: init .goldimages ## Build Rocky 9.6 standard partition 100Gb
-	$(call green, Build Rocky 9.6 Vagrant Standart Partition UEFI box image')
+	@$(call green, Build Rocky 9.6 Vagrant Standart Partition UEFI box image')
 	PACKER_LOG=$(packer_log) ./packer build -machine-readable --var-file=data/rocky/9.6/standard.pkrvars.hcl -only=vagrant.qemu.rhel .
 
 build/rocky-9.6-production-vagrant-uefi.box: init .goldimages ## Build Rocky 9.6 standard partition 100Gb
-	$(call green, Build Rocky 9.6 Vagrant Standart Partition UEFI box image')
+	@$(call green, Build Rocky 9.6 Vagrant Standart Partition UEFI box image')
 	./packer build -machine-readable --var-file=data/rocky/9.6/production.vagrant.pkrvars.hcl -only=vagrant.qemu.rhel .
 
 build/rocky-9.6-samba-vagrant-uefi.box: init .goldimages ## Build Rocky 9.6 Samba partition 50Gb
-	$(call green, Build Rocky 9.6 Vagrant Standart Partition UEFI box image')
+	@$(call green, Build Rocky 9.6 Vagrant Standart Partition UEFI box image')
 	./packer build -machine-readable --var-file=data/rocky/9.6/samba.vagrant.pkrvars.hcl -only=vagrant.qemu.rhel .
 
 build/rocky-9.6-vagrant-custom-uefi.box: init .goldimages ## Build Rocky 9.6 Custom partition 50Gb
-	$(call green, Build Rocky 9.6 Vagrant Custom Partition UEFI box image')
+	@$(call green, Build Rocky 9.6 Vagrant Custom Partition UEFI box image')
 	PACKER_LOG=$(packer_log) ./packer build -machine-readable --var-file=data/rocky/9.6/custom.vagrant.pkrvars.hcl -only=vagrant.qemu.rhel -on-error=abort .
 
 build/rocky-9.6-standard-libvirt.uefi.qcow2: init .goldimages
-	$(call green, Build Rocky 9.6 Libvirt Standart Partition UEFI box image')
+	@$(call green, Build Rocky 9.6 Libvirt Standart Partition UEFI box image')
 	./packer build -machine-readable --var-file=data/rocky/9.6/standard.libvirt.pkrvars.hcl -only=libvirt.qemu.rhel -on-error=abort .
 
 build/rocky-9.6-production-libvirt.uefi.qcow2: init .goldimages
-	$(call green, Build Rocky 9.6 Libvirt Production Partition UEFI box image')
+	@$(call green, Build Rocky 9.6 Libvirt Production Partition UEFI box image')
 	./packer build \
 		-machine-readable \
 		-var 'headless=true' \
 		--var-file=data/rocky/9.6/production.libvirt.pkrvars.hcl \
 		-only=libvirt.qemu.rhel \
 		-on-error=abort .
+
+build/rocky-10.1-standard-vagrant-uefi.box: init .goldimages venv
+	@$(call green, Build Rocky 10.1 Standard Vagrant Partition UEFI box image')
+	$(VENV_ACTIVATE) && ansible-playbook --syntax-check provisioners/ansible/vagrant.yml
+	$(VENV_ACTIVATE) && ansible-lint provisioners/ansible/vagrant.yml
+	@$(call green, Build Rocky 10.1 Standard Vagrant Partition UEFI box image')
+	$(VENV_ACTIVATE) && \
+	PACKER_LOG=$(packer_log) ./packer build -machine-readable \
+		-var "ssh_public_key_file=$(HOME)/.ssh/id_ed25519.pub" \
+		-var "ssh_private_key_file=$(HOME)/.ssh/id_ed25519" \
+		--var-file=data/rocky/10.1/standard.vagrant.pkrvars.hcl -debug -only=vagrant.qemu.rhel -on-error=abort .
 
 build/rocky9.6_nutanix.standard.uefi.qcow2: init
 	./packer build --var-file=rocky9.6.pkrvars.hcl -only=nutanix.qemu.rhel .
@@ -86,7 +97,7 @@ build/redhat9.6_vagrant.standard.uefi.qcow2: init
 build/redhat9.6_libvirt.standard.uefi.qcow2: init
 	./packer build --var-file=redhat9.6.pkrvars.hcl -only=libvirt.qemu.rhel .
 
-build/redhat9.6_nutanix.standard.uefi.qcow2: init
+build/redhat9.6_nutanix.standard.uefi.qcow2: init 
 	./packer build --var-file=redhat9.6.pkrvars.hcl -only=nutanix.qemu.rhel .
 
 build/centos9_nutanix.standard.uefi.qcow2: init
@@ -121,3 +132,11 @@ build/doc: ## Build pdf documentation
 			--number-sections \
 			--include-in-header=latex-headers.tex \
 			goldimage.md
+
+
+PHONY: tests/scripts
+tests/scripts:
+	@shellcheck \
+		--shell=bash \
+		--exclude=SC2086,SC2236,SC2094 \
+		scripts/*.sh
