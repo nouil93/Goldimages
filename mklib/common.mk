@@ -50,7 +50,7 @@ SHELL=/bin/bash
 
 .PHONY: venv export clean clean-builds info
 
-venv: $(VENV_NAME)/bin/activate ## Python venv mmgt
+venv: $(VENV_NAME)/bin/activate ## Create or update the Python environment
 $(VENV_NAME)/bin/activate: requirements.txt
 	test -d $(VENV_NAME) || python3 -m venv $(VENV_NAME)
 	[ ! -z $(proxy) ] && \
@@ -63,8 +63,8 @@ $(VENV_NAME)/bin/activate: requirements.txt
  
 
 .PHONY: .default-menu
-.default-menu: 
-	@echo -ne "\x1b[33m            .MMM..:MMMMMMM                  ${projet} \x1b[0m\n"
+.default-menu:
+	@echo -ne "\x1b[33m            .MMM..:MMMMMMM                  $(PROJECT) \x1b[0m\n"
 	@echo -ne "\x1b[33m           MMMMMMMMMMMMMMMMMM               OS: Red Hat Enterprise Linux \x1b[0m\n"
 	@echo -ne "\x1b[33m           MMMMMMMMMMMMMMMMMMMM.            OS: Rocky Linux\x1b[0m\n"
 	@echo -ne "\x1b[33m          MMMMMMMMMMMMMMMMMMMMMM            OS: Centos Linux\x1b[0m\n"
@@ -83,10 +83,10 @@ $(VENV_NAME)/bin/activate: requirements.txt
 	@echo -ne "\x1b[33m             \`MMMMMMMMMMMMMMMMMMMMMMMM:     \x1b[0m\n"
 	@echo -ne "\x1b[33m                 \`\`MMMMMMMMMMMMMMMMM'       \x1b[0m\n\n"
 	@echo -ne "\x1b[33m$(description) \x1b[0m\n\n"
-	@printf "$$(grep -hE '^\S+:.*##' $(MAKEFILE_LIST) | sed -e 's/:.*##\s*/:/' -e 's/^\(.\+\):\(.*\)/\\x1b[36m\1\\x1b[m:\2/' | column -c2 -t -s :)\n"
+	@awk '/^[^[:space:]:]+:.*##/ { target = $$0; sub(/:.*/, "", target); description = $$0; sub(/^.*##[[:space:]]*/, "", description); targets[++count] = target; descriptions[count] = description; if (length(target) > width) width = length(target) } END { for (i = 1; i <= count; i++) printf "  %-*s  %s\n", width, targets[i], descriptions[i] }' $(MAKEFILE_LIST)
 
 # Test values of variables - for debug purposes
-info:
+info: ## Show build environment variables
 	@echo "--- Compilation commands --- "
 	@echo "HAS_GITFLOW      -> '$(HAS_GITFLOW)'"
 	@echo "--- Directories --- "
@@ -113,7 +113,7 @@ $(DIST_DIR):
 	@mkdir -p $(DIST_DIR)
 
 .PHONY: export
-export: | $(DIST_DIR)
+export: | $(DIST_DIR) ## Export a source archive
 	@echo "Exporting snapshot -> $(ARCHIVE)"
 	@if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then \
 		git archive --format=tar.gz --prefix=$(PROJECT)/ -o "$(ARCHIVE)" HEAD; \
@@ -130,10 +130,10 @@ export: | $(DIST_DIR)
 	@echo "Done: $(ARCHIVE)"
 
 .PHONY: clean
-clean:
+clean: ## Remove caches and generated build artifacts
 	rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache dist build
 
 .PHONY: clean-builds
-clean-builds:
+clean-builds: ## Remove output/_build
 	rm -rf output/_build
 	

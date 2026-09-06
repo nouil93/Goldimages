@@ -1,0 +1,34 @@
+# {{ ansible_managed | default('Ansible managed') }}
+# Global Debian Bash prompt. No external commands run when drawing the prompt.
+[ -n "${BASH_VERSION:-}" ] || return 0
+case $- in
+  *i*) ;;
+  *) return 0 ;;
+esac
+[ "${TERM:-dumb}" != dumb ] || return 0
+[ "${_GOLDIMAGE_PROMPT_INITIALIZED:-}" != 1 ] || return 0
+_GOLDIMAGE_PROMPT_INITIALIZED=1
+
+_goldimage_prompt() {
+    local reset='\[\e[0m\]'
+    local environment='\[\e[{{ {"template": "34", "dev": "32", "test": "36", "staging": "33", "prod": "1;31"}[common_environment] }}m\]'
+    local identity=''
+    if (( EUID == 0 )); then
+        identity='\[\e[1;31m\]'
+    fi
+    PS1="${environment}[{{ common_environment | upper }}]${reset} ${identity}\u@{{ '\\H' if common_shell_prompt_show_fqdn else '\\h' }}${reset} \w \\$ "
+}
+
+# Run after existing hooks and user startup files, which may assign their own PS1.
+# Preserve both Bash's array and traditional string forms of PROMPT_COMMAND.
+if [[ $(declare -p PROMPT_COMMAND 2>/dev/null) == 'declare -a '* ]]; then
+    PROMPT_COMMAND+=(_goldimage_prompt)
+elif [[ -n ${PROMPT_COMMAND:-} ]]; then
+    # String branch: PROMPT_COMMAND is not an array here.
+    # shellcheck disable=SC2179
+    PROMPT_COMMAND+=$'\n_goldimage_prompt'
+else
+    # shellcheck disable=SC2178
+    PROMPT_COMMAND=_goldimage_prompt
+fi
+_goldimage_prompt

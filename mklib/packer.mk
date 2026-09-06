@@ -10,17 +10,17 @@ PACKER_SHA256SUMS   := $(notdir $(packer_SHA256SUMS_url))
 
 
 packer: ## Packer download and verify
-	http_proxy=$(proxy) \
-	https_proxy=$(proxy) \
-	curl -O $(packer_url) && \
-	curl -O $(packer_SHA256SUMS_url)
-	sha256sum -c $(shell basename $(packer_SHA256SUMS_url)) 2>&1 | \
-		grep $(shell basename $(packer_url))
-	@unzip $(shell basename $(packer_url))
-	@chmod 755 packer
-	@rm $(shell basename $(packer_url))
-	@rm $(shell basename $(packer_SHA256SUMS_url))
-	@./packer plugins install github.com/hashicorp/qemu
+	@set -eu -o pipefail; \
+	bootstrap_dir=$$(mktemp -d); \
+	trap 'rm -rf "$$bootstrap_dir"' EXIT; \
+	cd "$$bootstrap_dir"; \
+	curl $(if $(proxy),--proxy "$(proxy)",) --fail --location --show-error --output "$(PACKER_ZIP)" "$(packer_url)"; \
+	curl $(if $(proxy),--proxy "$(proxy)",) --fail --location --show-error --output "$(PACKER_SHA256SUMS)" "$(packer_SHA256SUMS_url)"; \
+	awk '$$2 == "$(PACKER_ZIP)" { print }' "$(PACKER_SHA256SUMS)" > selected.sha256; \
+	test -s selected.sha256; \
+	sha256sum --check selected.sha256; \
+	unzip -o "$(PACKER_ZIP)" packer; \
+	install -m 755 packer "$(CURDIR)/packer"
 
 .PHONY: .goldimages
 .goldimages: packer ## Print Logo

@@ -1,0 +1,42 @@
+---
+- name: Common | Validate shell history sizes
+  ansible.builtin.assert:
+    that:
+      - common_shell_history_size is integer
+      - common_shell_history_size > 0
+      - common_shell_history_file_size is integer
+      - common_shell_history_file_size > 0
+    fail_msg: "Shell history sizes must be positive integers"
+
+- name: Common | Install Debian shell history
+  ansible.builtin.template:
+    src: history.sh.j2
+    dest: /etc/profile.d/91-goldimage-history.sh
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /bin/bash -n %s
+  when: common_shell_history_enabled | bool
+
+- name: Common | Remove disabled Debian shell history
+  ansible.builtin.file:
+    path: /etc/profile.d/91-goldimage-history.sh
+    state: absent
+  when: not (common_shell_history_enabled | bool)
+
+- name: Common | Manage interactive Debian Bash history loader
+  ansible.builtin.blockinfile:
+    path: /etc/bash.bashrc
+    marker: "# {mark} ANSIBLE MANAGED GOLDIMAGE HISTORY"
+    state: "{{ 'present' if common_shell_history_enabled | bool else 'absent' }}"
+    block: |
+      if [ -n "${BASH_VERSION:-}" ]; then
+        case $- in
+          *i*)
+            if [ -r /etc/profile.d/91-goldimage-history.sh ]; then
+              . /etc/profile.d/91-goldimage-history.sh
+            fi
+            ;;
+        esac
+      fi
+    validate: /bin/bash -n %s

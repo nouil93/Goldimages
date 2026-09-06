@@ -11,3 +11,13 @@
       - net-tools
       - acpid
       - htop
+      - qemu-guest-agent
+  tasks:
+    - name: Enable QEMU guest agent
+      ansible.builtin.systemd:
+        name: qemu-guest-agent
+        enabled: true
+
+    - name: Goldimage | Configure Debian networking
+      ansible.builtin.import_tasks: tasks/libvirt-debian.yml
+      when: ansible_facts['distribution'] == 'Debian'

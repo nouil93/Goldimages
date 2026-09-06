@@ -1,0 +1,9 @@
+---
+- name: Prepare Debian test container
+  hosts: all
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Install Python for Ansible
+      ansible.builtin.raw: apt-get update && apt-get install -y python3
+      changed_when: true

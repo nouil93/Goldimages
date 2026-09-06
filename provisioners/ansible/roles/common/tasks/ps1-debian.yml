@@ -1,0 +1,44 @@
+---
+- name: Common | Validate shell prompt environment
+  ansible.builtin.assert:
+    that:
+      - common_environment in ['template', 'dev', 'test', 'staging', 'prod']
+    fail_msg: "common_environment must be template, dev, test, staging, or prod"
+
+- name: Common | Remove legacy Debian PS1 profile
+  ansible.builtin.file:
+    path: /etc/profile.d/ps1.sh
+    state: absent
+
+- name: Common | Install Debian shell prompt
+  ansible.builtin.template:
+    src: ps1.sh.j2
+    dest: /etc/profile.d/90-goldimage-prompt.sh
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /bin/bash -n %s
+  when: common_shell_prompt_enabled | bool
+
+- name: Common | Remove disabled Debian shell prompt
+  ansible.builtin.file:
+    path: /etc/profile.d/90-goldimage-prompt.sh
+    state: absent
+  when: not (common_shell_prompt_enabled | bool)
+
+- name: Common | Manage interactive Debian Bash prompt loader
+  ansible.builtin.blockinfile:
+    path: /etc/bash.bashrc
+    marker: "# {mark} ANSIBLE MANAGED GOLDIMAGE PROMPT"
+    state: "{{ 'present' if common_shell_prompt_enabled | bool else 'absent' }}"
+    block: |
+      if [ -n "${BASH_VERSION:-}" ]; then
+        case $- in
+          *i*)
+            if [ -r /etc/profile.d/90-goldimage-prompt.sh ]; then
+              . /etc/profile.d/90-goldimage-prompt.sh
+            fi
+            ;;
+        esac
+      fi
+    validate: /bin/bash -n %s

@@ -18,8 +18,20 @@ common_timezone: ""
 
 # MOTD and shell customization.
 common_manage_motd: true
+# Legacy prompt switch for non-Debian systems.
 common_manage_ps1: true
+# Debian Bash prompt defaults for reusable images.
+common_shell_prompt_enabled: true
+common_environment: template
+common_shell_prompt_show_fqdn: false
 common_motd_banner: "GoldImages"
+
+# Interactive Debian Bash history (operator convenience, not auditing).
+common_shell_history_enabled: true
+common_shell_history_size: 20000
+common_shell_history_file_size: 50000
+common_shell_history_timestamp_format: "%Y-%m-%dT%H:%M:%S%z "
+common_shell_history_sync: true
 
 # User and SSH management.
 common_manage_users: false

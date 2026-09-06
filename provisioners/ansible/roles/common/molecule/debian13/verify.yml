@@ -1,0 +1,113 @@
+---
+- name: Verify Debian prompt
+  hosts: all
+  become: false
+  tasks:
+    - name: Check prompt metadata
+      ansible.builtin.stat:
+        path: /etc/profile.d/90-goldimage-prompt.sh
+      register: prompt_stat
+
+    - name: Assert prompt ownership and permissions
+      ansible.builtin.assert:
+        that:
+          - prompt_stat.stat.exists
+          - prompt_stat.stat.isreg
+          - prompt_stat.stat.pw_name == 'root'
+          - prompt_stat.stat.gr_name == 'root'
+          - prompt_stat.stat.mode == '0644'
+
+    - name: Validate generated Bash syntax
+      ansible.builtin.command: bash -n /etc/profile.d/90-goldimage-prompt.sh
+      changed_when: false
+
+    - name: Verify non-interactive Bash leaves the prompt unchanged
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -c
+          - >-
+            PS1=original; . /etc/profile.d/90-goldimage-prompt.sh;
+            test "$PS1" = original && test -z "${_GOLDIMAGE_PROMPT_INITIALIZED:-}"
+      changed_when: false
+
+    - name: Read global Bash configuration
+      ansible.builtin.slurp:
+        path: /etc/bash.bashrc
+      register: bashrc_before
+
+    - name: Assert managed loader is present once
+      ansible.builtin.assert:
+        that:
+          - >-
+            (bashrc_before.content | b64decode).count(
+            '# BEGIN ANSIBLE MANAGED GOLDIMAGE PROMPT') == 1
+          - >-
+            '. /etc/profile.d/90-goldimage-prompt.sh'
+            in (bashrc_before.content | b64decode)
+
+    - name: Check interactive non-login startup loads template prompt
+      ansible.builtin.command:
+        argv:
+          - bash
+          - --noprofile
+          - -ic
+          - >-
+            test "${_GOLDIMAGE_PROMPT_INITIALIZED:-}" = 1 &&
+            [[ $PS1 == *'[TEMPLATE]'* ]]
+      environment:
+        TERM: xterm
+      changed_when: false
+
+    - name: Disable prompt
+      ansible.builtin.include_role:
+        name: common
+        tasks_from: ps1
+      vars:
+        common_shell_prompt_enabled: false
+
+    - name: Check disabled prompt file
+      ansible.builtin.stat:
+        path: /etc/profile.d/90-goldimage-prompt.sh
+      register: disabled_prompt
+
+    - name: Read global Bash configuration after disabling
+      ansible.builtin.slurp:
+        path: /etc/bash.bashrc
+      register: bashrc_disabled
+
+    - name: Assert prompt and loader were removed
+      ansible.builtin.assert:
+        that:
+          - not disabled_prompt.stat.exists
+          - >-
+            'ANSIBLE MANAGED GOLDIMAGE PROMPT'
+            not in (bashrc_disabled.content | b64decode)
+
+    - name: Restore default prompt
+      ansible.builtin.include_role:
+        name: common
+        tasks_from: ps1
+      vars:
+        common_shell_prompt_enabled: true
+
+    - name: Read restored global Bash configuration
+      ansible.builtin.slurp:
+        path: /etc/bash.bashrc
+      register: bashrc_restored
+
+    - name: Assert loader round trip preserves global Bash configuration
+      vars:
+        prompt_block_pattern: >-
+          {{ '(?ms)^# BEGIN ANSIBLE MANAGED GOLDIMAGE PROMPT\n.*?'
+             ~ '^# END ANSIBLE MANAGED GOLDIMAGE PROMPT\n' }}
+      ansible.builtin.assert:
+        that:
+          - >-
+            (bashrc_before.content | b64decode |
+            regex_replace(prompt_block_pattern, '')) ==
+            (bashrc_restored.content | b64decode |
+            regex_replace(prompt_block_pattern, ''))
+
+    - name: Verify independent history policy
+      ansible.builtin.import_tasks: verify-history.yml

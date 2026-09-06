@@ -1,0 +1,119 @@
+---
+- name: Verify history metadata
+  ansible.builtin.stat:
+    path: /etc/profile.d/91-goldimage-history.sh
+  register: history_stat
+
+- name: Assert history ownership and permissions
+  ansible.builtin.assert:
+    that:
+      - history_stat.stat.exists
+      - history_stat.stat.isreg
+      - history_stat.stat.pw_name == 'root'
+      - history_stat.stat.gr_name == 'root'
+      - history_stat.stat.mode == '0644'
+
+- name: Validate generated history Bash syntax
+  ansible.builtin.command: bash -n /etc/profile.d/91-goldimage-history.sh
+  changed_when: false
+
+- name: Verify non-interactive history configuration is untouched
+  ansible.builtin.command:
+    argv:
+      - bash
+      - -c
+      - >-
+        HISTSIZE=7; HISTTIMEFORMAT=original;
+        . /etc/profile.d/91-goldimage-history.sh;
+        test "$HISTSIZE" = 7 && test "$HISTTIMEFORMAT" = original &&
+        test -z "${_GOLDIMAGE_HISTORY_INITIALIZED:-}"
+  changed_when: false
+
+- name: Verify interactive history settings and unique hook
+  ansible.builtin.command:
+    argv:
+      - bash
+      - --noprofile
+      - -ic
+      - |
+        test "${_GOLDIMAGE_HISTORY_INITIALIZED:-}" = 1 || exit 1
+        . /etc/profile.d/91-goldimage-history.sh
+        . /etc/profile.d/91-goldimage-history.sh
+        for hook in "${PROMPT_COMMAND[@]}"; do eval "$hook"; done
+        test "$HISTTIMEFORMAT" = '%Y-%m-%dT%H:%M:%S%z ' || exit 1
+        test "$HISTSIZE" = 20000 || exit 1
+        test "$HISTFILESIZE" = 50000 || exit 1
+        test "$HISTCONTROL" = ignoredups || exit 1
+        shopt -q histappend cmdhist || exit 1
+        hooks=${PROMPT_COMMAND[*]}
+        tail=${hooks#*_goldimage_history}
+        [[ $tail != "$hooks" && $tail != *'_goldimage_history'* ]]
+  changed_when: false
+
+- name: Read Bash configuration with history enabled
+  ansible.builtin.slurp:
+    path: /etc/bash.bashrc
+  register: history_bashrc_before
+
+- name: Assert history loader appears once
+  ansible.builtin.assert:
+    that:
+      - >-
+        (history_bashrc_before.content | b64decode).count(
+        '# BEGIN ANSIBLE MANAGED GOLDIMAGE HISTORY') == 1
+      - >-
+        '. /etc/profile.d/91-goldimage-history.sh'
+        in (history_bashrc_before.content | b64decode)
+
+- name: Disable history independently
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: history-debian
+  vars:
+    common_shell_history_enabled: false
+
+- name: Check disabled history file
+  ansible.builtin.stat:
+    path: /etc/profile.d/91-goldimage-history.sh
+  register: history_disabled
+
+- name: Read Bash configuration with history disabled
+  ansible.builtin.slurp:
+    path: /etc/bash.bashrc
+  register: history_bashrc_disabled
+
+- name: Assert only history artifacts were removed
+  ansible.builtin.assert:
+    that:
+      - not history_disabled.stat.exists
+      - >-
+        'ANSIBLE MANAGED GOLDIMAGE HISTORY'
+        not in (history_bashrc_disabled.content | b64decode)
+      - >-
+        '# BEGIN ANSIBLE MANAGED GOLDIMAGE PROMPT'
+        in (history_bashrc_disabled.content | b64decode)
+
+- name: Restore default history configuration
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: history-debian
+  vars:
+    common_shell_history_enabled: true
+
+- name: Read restored Bash configuration
+  ansible.builtin.slurp:
+    path: /etc/bash.bashrc
+  register: history_bashrc_restored
+
+- name: Assert unrelated Bash configuration survives history round trip
+  vars:
+    history_block_pattern: >-
+      {{ '(?ms)^# BEGIN ANSIBLE MANAGED GOLDIMAGE HISTORY\n.*?'
+         ~ '^# END ANSIBLE MANAGED GOLDIMAGE HISTORY\n' }}
+  ansible.builtin.assert:
+    that:
+      - >-
+        (history_bashrc_before.content | b64decode |
+        regex_replace(history_block_pattern, '')) ==
+        (history_bashrc_restored.content | b64decode |
+        regex_replace(history_block_pattern, ''))

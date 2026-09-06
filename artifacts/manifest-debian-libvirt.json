@@ -1,0 +1,149 @@
+{
+  "builds": [
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788582757,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 442499072
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "4015e9df-4e95-3897-9094-473db7d4c9bb",
+      "custom_data": null
+    },
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788583473,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 443875328
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "57a464e9-3a1b-f71c-5758-6ab1aff7d439",
+      "custom_data": null
+    },
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788583794,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 444334080
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "a7d27ec9-09b5-f5de-2429-327e953ad882",
+      "custom_data": null
+    },
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788583925,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 443744256
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "97f201c6-b495-be82-9611-3ed06166c0da",
+      "custom_data": null
+    },
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788597357,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 443547648
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "49e86f6b-b1a3-05bc-d325-dc85453b7618",
+      "custom_data": null
+    },
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788597523,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 444006400
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "3475bb26-54a6-bdab-017e-e9b1ef651a24",
+      "custom_data": null
+    },
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788599385,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 444399616
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "3e0b76c8-441e-b0bc-23dd-6ffb0ccbcca8",
+      "custom_data": null
+    },
+    {
+      "name": "debian_cloud",
+      "builder_type": "qemu",
+      "build_time": 1788675730,
+      "files": [
+        {
+          "name": "debian-13.6-standard-libvirt-uefi.qcow2",
+          "size": 443809792
+        },
+        {
+          "name": "efivars.fd",
+          "size": 540672
+        }
+      ],
+      "artifact_id": "VM",
+      "packer_run_uuid": "4587a4f8-1810-1b99-9fe7-2f8628a1cd0e",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "4587a4f8-1810-1b99-9fe7-2f8628a1cd0e"
+}

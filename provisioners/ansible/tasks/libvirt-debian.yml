@@ -1,0 +1,27 @@
+---
+- name: Goldimage | Remove cloud-init generated Netplan configuration
+  ansible.builtin.file:
+    path: /etc/netplan/50-cloud-init.yaml
+    state: absent
+
+- name: Goldimage | Install generic DHCP Netplan configuration
+  ansible.builtin.copy:
+    dest: /etc/netplan/50-dhcp.yaml
+    owner: root
+    group: root
+    mode: "0600"
+    content: |
+      network:
+        version: 2
+        renderer: networkd
+        ethernets:
+          all-en:
+            match:
+              name: "en*"
+            dhcp4: true
+            dhcp6: false
+
+- name: Goldimage | Validate Netplan configuration
+  ansible.builtin.command:
+    cmd: netplan generate
+  changed_when: false

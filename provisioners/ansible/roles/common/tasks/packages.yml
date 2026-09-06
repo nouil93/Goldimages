@@ -23,3 +23,9 @@
   community.general.timezone:
     name: "{{ common_timezone }}"
   when: common_timezone | length > 0
+
+- name: Common | Enable QEMU guest agent
+  ansible.builtin.service:
+    name: qemu-guest-agent
+    enabled: true
+  when: ansible_virtualization_type == "kvm"

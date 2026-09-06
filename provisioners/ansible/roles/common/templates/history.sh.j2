@@ -1,0 +1,45 @@
+# {{ ansible_managed | default('Ansible managed') }}
+# Interactive history is operator convenience, not a security audit trail.
+[ -n "${BASH_VERSION:-}" ] || return 0
+case $- in
+  *i*) ;;
+  *) return 0 ;;
+esac
+[ "${_GOLDIMAGE_HISTORY_INITIALIZED:-}" != 1 ] || return 0
+
+_goldimage_history() {
+    local previous_status=$?
+    # User startup files run after /etc/bash.bashrc. Reapply the policy here.
+    # Avoid repeatedly assigning HISTFILESIZE, which can truncate the file.
+    if [[ ${HISTSIZE:-} != {{ common_shell_history_size }} ]]; then
+        HISTSIZE={{ common_shell_history_size }}
+    fi
+    if [[ ${HISTFILESIZE:-} != {{ common_shell_history_file_size }} ]]; then
+        HISTFILESIZE={{ common_shell_history_file_size }}
+    fi
+    HISTCONTROL=ignoredups
+    HISTTIMEFORMAT={{ common_shell_history_timestamp_format | quote }}
+    shopt -s histappend cmdhist
+{% if common_shell_history_sync %}
+    # Let Bash finish its normal startup history load before synchronizing.
+    if [[ ${1:-} != initialize ]]; then
+        builtin history -a || :
+        builtin history -n || :
+    fi
+{% endif %}
+    return "$previous_status"
+}
+
+# Debian Bash supports string and indexed-array PROMPT_COMMAND forms.
+if [[ $(declare -p PROMPT_COMMAND 2>/dev/null) =~ ^declare\ -[^[:space:]]*a ]]; then
+    PROMPT_COMMAND+=(_goldimage_history)
+elif [[ -n ${PROMPT_COMMAND:-} ]]; then
+    # This branch handles a string, not an array.
+    # shellcheck disable=SC2179
+    PROMPT_COMMAND+=$'\n_goldimage_history'
+else
+    # shellcheck disable=SC2178
+    PROMPT_COMMAND=_goldimage_history
+fi
+_GOLDIMAGE_HISTORY_INITIALIZED=1
+_goldimage_history initialize

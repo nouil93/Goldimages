@@ -19,8 +19,12 @@
 
 - name: Common | PS1
   ansible.builtin.import_tasks: ps1.yml
-  when: common_manage_ps1 | bool
   tags: [common, ps1]
+
+- name: Common | Debian shell history
+  ansible.builtin.import_tasks: history-debian.yml
+  when: ansible_facts['distribution'] == 'Debian'
+  tags: [common, history]
 
 - name: Common | Sysctl
   ansible.builtin.import_tasks: sysctl.yml

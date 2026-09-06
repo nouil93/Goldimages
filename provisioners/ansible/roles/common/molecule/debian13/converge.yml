@@ -1,0 +1,14 @@
+---
+- name: Converge Debian shell configuration
+  hosts: all
+  become: false
+  tasks:
+    - name: Apply common prompt tasks with image defaults
+      ansible.builtin.include_role:
+        name: common
+        tasks_from: ps1
+
+    - name: Apply common history tasks with image defaults
+      ansible.builtin.include_role:
+        name: common
+        tasks_from: history-debian
